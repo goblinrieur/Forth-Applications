@@ -1,24 +1,30 @@
 \ Mini Spreadsheet
-\ in Gforth 0.6.2 (console mode)
-
-\ Contributed by Chess Player , expandafter at yahoo.com
-
-\ from Andreas' practical language comparison: Test case: Mini
-\ Spreadsheet using Forth.
-
-\ from http://wiki.forthfreak.net/index.cgi?MiniSpreadsheet
+\ current version : 
+\  ____   ___ ____  _____  ___  _  _  ____ _____ 
+\  ___ \ / _ \___ \|___ / / _ \| || ||___ \___  |
+\   __) | | | |__) | |_ \| | | | || |_ __) | / / 
+\  / __/| |_| / __/ ___) | |_| |__   _/ __/ / /  
+\  _____|\___/_____|____/ \___/   |_||_____/_/   
+\                                                
+\   in Gforth 0.6.2 (console mode)
+\   currently tested/modified from Gforth 0.7.3 and still compatible
+\   Spreadsheet using Forth. V0.0.2 from last Francois Pussault's changes
 
 \ small improvements by Anton Ertl:
 \ - used Gforth's key names instead of magic constants
 \ - used FORM to get screen size instead of magic constants
 \ - eliminated QUIT
 
+\ small improvement from Francois Pussault
+\ - Startup is now an auto-start of the spreadsheet
+\ - Exit really quit to console
+\ - Added a version tag of the code : v0.0.2 as tow different 
+
 \ If you're not using a DOS-box under Windows, your arrow keys may
 \ yield different numbers and you'll need to change the constants.
 
-\     * Run by typing main.
 \     * If you accidentally quit without saving your work, type
-\       mainloop to get back to your sheet.
+\       main-loop to get back to your sheet.
 \     * Labels: begin with "'".
 \     * Formulas:
 \           o begin with "=";
@@ -26,7 +32,6 @@
 \           o all operators have equal precedence, so to figure area
 \             of circle with radius of 5, use 3.14*(5^2).
 \     * Commands: 
-
 \     ESC q 	Quit
 \     ESC s 	Save
 \     ESC l 	Load
@@ -40,27 +45,37 @@ decimal   \ Initialize constants.
 form constant winwd  constant winht
 11 constant slotwd   31 constant strsize
 99 constant maxrow   25 constant maxcol
-
+27 constant ESC  \ to manage escape sequences used as colorations
 winht 2 -              constant visrows
 winwd 2 - slotwd / 1+  constant viscols
 maxcol viscols  - 2 +  constant maxcorner_x
 maxrow winht    - 3 +  constant maxcorner_y
-
-2 value decimalplaces  2variable currentpos
-0 value corner_x  0 value corner_y \ The cell shown in upper, left corner.
-
 maxrow 1+ maxcol 1+ * dup
+
 create farrayadr       floats allot
 create sarrayadr strsize 1+ * allot
 create copied             256 allot
 create mypad              256 allot
 2variable from
 
-: farray ( x y -- address) maxcol 1+ * + floats farrayadr + ;
-: sarray ( x y -- address) maxcol 1+ * + strsize 1+ * sarrayadr + ;
+0 Value fd-out \ for saving file
+2 value decimalplaces  2variable currentpos
+0 value corner_x  0 value corner_y \ The cell shown in upper, left corner.
+
+: COLORIZE ESC EMIT ." [" base @ >R 0 <# #S #> type R> base ! ." m" ; \ ASCII TERMINAL 
+
+: farray ( x y -- address) 
+	maxcol 1+ * + floats farrayadr + ;
+: sarray ( x y -- address) 
+	maxcol 1+ * + strsize 1+ * sarrayadr + ;
 
 : cfind ( c cadr n -- n)   { c adr n }  -1
-  adr n bounds ?do i c@ c = if drop i adr - leave then loop ;
+	adr n bounds ?do 
+		i c@ c = if 
+			drop i adr - leave 
+		then 
+	loop 
+;
 
 : tidy ( n1 n2 -- larger+1 smaller) 2dup max 1+ -rot min ;
 : letter? ( c--flag) toupper 'A 'Z 1+ within ;
@@ -68,26 +83,34 @@ create mypad              256 allot
 
 : outside? ( x y -- flag) 0 maxrow 1+ within 0= swap 0 maxcol 1+ within 0= or ;
 : bottom 0 winht 1- 2dup at-xy  winwd 1- spaces  at-xy ;
-: error  bottom type ."  Press a key:"  ekey drop ;
+: error  bottom type 31 colorize ."  Press a key:" 0 colorize ekey drop ;
 
 : sumrange ( x y x y -- F:sum) rot tidy { a b } tidy { c d }
-  0.0e  a b do  c d  do  i j farray  f@  f+  loop loop  ;
+  0.0e  a b do  c d  
+	do  
+		i j farray  f@  f+  
+	loop 
+loop  ;
 
 : ref? ( cadr n -- cadr n flag) over c@ letter? ;
 \ Convert slot reference (e.g., "j35") to x,y.
 : ref  ( cadr n -- x y)  'A 10 { adr n offset mul } n 2 < throw
-  adr n bounds ?do  i c@  toupper offset -  '0 to offset  loop
-  n 2 - 0 ?do  swap mul * +  mul 10 * to mul  loop
-  2dup outside? if s" Out-of-bounds reference." error 1 throw then ;
+  adr n bounds ?do  
+	i c@  toupper offset -  '0 to offset 
+ loop
+  n 2 - 0 ?do  
+	swap mul * +  mul 10 * to mul  
+ loop
+  2dup outside? if 33 colorize s" Out-of-bounds reference." 0 colorize error 1 throw then ;
 : doref ( cadr n -- F:f)  -1 { adr n p }
   ': adr n cfind to p ( Range?)
   p -1 > if  adr p ref  adr p + 1+  n p - 1-  ref? 0= throw  ref  sumrange
   else  adr n ref  farray f@ then ;
 
-: ops s" */+-^()" ;
-create optable ' f* , ' f/ , ' f+ , ' f- , ' f** ,
+: ops s" */+-^()" ; \ manage formulas operators
+create optable ' f* , ' f/ , ' f+ , ' f- , ' f** ,  \ assign forth float manipulations operators
 : opfind ( c -- n)  ops cfind ;
-: op? ( c -- c flag) dup opfind -1 > ;
+: op? ( c -- c flag) dup opfind -1 > ; \ which one ?
 create opstack 256 cells allot  opstack cell - value sp
 : push sp cell+ to sp  sp ! ;
 : copy sp @ ;  : pop  copy  sp cell - to sp ;
@@ -104,9 +127,14 @@ create opstack 256 cells allot  opstack cell - value sp
 : infix ( cadr n -- F:f)  here { mark  }
   bounds ?do i c@ op?
      (  ) over  s" +-" cfind 0<   here mark -  or  and ( For unary +-.)
-    if  mark doval  else  dup BL = if drop else c, then  then
+	if  mark doval  
+	else  dup BL = if 
+			drop 
+		else c, 
+		then  
+	then
   loop   0 mark doval  pop drop
-  \ Error if operator left on opstack.
+  \ Error if operator left on op-stack.
   copy if begin pop drop copy 0= until 1 throw then ;
 
 defer afunc
@@ -117,25 +145,52 @@ defer afunc
 : emptyslot  ( x y        --) sarray 0 swap ! ;
 : emptysarray  ['] emptyslot  doarray ;
 
-: .empty   slotwd 1- 0 ?do  ." ." loop ;
-: pos@ currentpos 2@ ;
+: .empty   
+	36 colorize 
+	slotwd 1- 0 ?do  
+		." ." 
+	loop 
+	0 colorize 
+; \ draw dots in empty cells
+
+: pos@ currentpos 2@ ; \ current position
 : pos! currentpos 2! ;
 : >indices ( col row -- i j)  1- corner_y + swap 1- corner_x + swap ;
 : ind@  pos@ >indices ;
 : .val ( f --) slotwd 1-  decimalplaces 2 f.rdp ;
 : head ( col --) ?dup if corner_x + 64 + slotwd 2/ else 32 1 then spaces emit ;
-: at-slot ( col row --)  swap 1- slotwd * 2 + 0 max swap at-xy ;
+: at-slot ( col row --)  swap 1- slotwd * 2 + 0 max swap at-xy ; \ place X/Y cursor on X/Y cell
 : disp ( x y --)  { x y }  space  x y sarray count ?dup
   if  over c@ [char] ' =  \ Label.
     if pad slotwd blank  1 /string pad swap move pad slotwd 1- type
     else  2drop  x y farray f@ .val  then
   else  drop  .empty  then ;
-: (show_slot) { col row } col row >indices  col if ( Print cell value.) disp
-  else ( Print row number.)  2 .r drop  then ;
+
+: (show_slot) { col row } 
+	33 colorize 
+	col row >indices  col 
+	if
+		( Print cell value.) 
+		disp
+	else
+		( Print row number.)  
+		2 .r drop  
+	then 
+	0 colorize 
+;
+
 : show_slot ( col row --)  2dup at-slot  ?dup  if (show_slot) else head then ;
 : showrow ( row --)  0 over at-xy  viscols 0 do  i over show_slot  loop drop ;
 : at-current pos@ at-slot ;
-: show  winht 1- 0 do  i showrow  loop  at-current ;
+
+: show  33 colorize 
+	winht 1- 0 do  
+		i showrow  
+	loop  
+	0 colorize 
+	at-current 
+;
+
 : bounded ( n dn minimum ceiling offset maxoffset -- n offset)
   { n dn minimum ceiling offset maxoffset }
   n dn +  minimum ceiling within
@@ -150,7 +205,8 @@ defer afunc
 : set-dec-places  ( -- ) bottom ." Decimal places? " pad 1 accept pad swap
   -trailing dup
   if  0. 2swap  >number   nip
-    if s" Bad integer." error 2drop  else  d>s to decimalplaces  then
+	if 33 colorize s" Bad integer." 0 colorize error 2drop  
+	else  d>s to decimalplaces  then
   else 2drop then ;
 
 : calcstr ( cadr n -- F:f)   0 { adr n ch }   n
@@ -160,14 +216,14 @@ defer afunc
     adr n >float  0= throw
   else   0.0e   then ;
 : calcslot ( x y --) 2dup sarray count calcstr farray f! ;
-: edit ( c--) bottom  ind@  2dup sarray { x y sadr } x 65 + emit y 1 .r ." >"
+: edit ( c--) bottom  ind@  2dup sarray { x y sadr } x 65 + emit y 1 .r 31 colorize ." >" 0 colorize 
   ?dup if 1 sadr c! sadr 1+ c! ( 1 char. has been typed.) then
   sadr count strsize swap edit-line  sadr c!  x y ['] calcslot catch  if 2drop
-  s" Bad cell (use = for formulas, ' for labels)." error  0 recurse
+	  33 colorize s" Bad cell (use = for formulas, ' for labels)." 0 colorize error  0 recurse
   then  pos@ show_slot ;
 : calc ( col row --) 2dup sarray  count  calcstr  farray f! ;
-: calc_all bottom ." Calculating..." ['] calc doarray
-  show bottom ." ...calculated." ;
+: calc_all bottom 31 colorize ." Calculating..." 0 colorize ['] calc doarray
+  show bottom 31 colorize ." ...calculated." 0 colorize ;
 
 : update-current  ind@ calcslot  at-current  pos@ show_slot ;
 : tocorner  1 1 pos!  at-current ;
@@ -180,16 +236,18 @@ defer afunc
 : wr ( cadr n--) handle write-line throw ;
 : wr-slot { x y } x y sarray count ?dup if x y 2>str wr wr else drop then ;
 : wr-array ['] wr-slot  doarray ;
-: getfname  ( --cadr n) bottom type pad 64 accept pad swap ;
-: open ( cadr n mode--ior) open-file ?dup if  nip s" Cannot open file." error
-  else  to handle 0  then ;
+: getfname  ( -- addr n) type pad 64 accept pad swap ;
+: open-output ( addr u -- )  w/o create-file throw to fd-out ;
+: open ( cadr n mode--ior) open-file ?dup if  nip 31 colorize s" Cannot open file." 0 colorize error else  to handle 0  then ;
+: close-output ( -- )  fd-out close-file throw ;
 : close ( --ior) handle close-file
-  if s" Error while closing file." error then ;
-: save s" Save to file: " getfname  w/o open if exit then ['] wr-array catch
-  if s" Error while writing to file." error then  close ;
-: fload  1 { x }  s" Load file: " getfname r/o open if exit then
+  if 33 colorize s" Error while closing file." 0 colorize error then ;
+\ fix unknown filename saving by creating it empty first then writing in it
+: read s" filename ? " getfname 2dup open-output close-output ;
+: save bottom 31 colorize read w/o open if exit then ['] wr-array catch 0 colorize if 33 colorize s" Error while writing to file." 0 colorize error then  close ; 
+: fload  1 { x }  31 colorize s" Load file: " 0 colorize getfname r/o open if exit then
   begin  pad 80 handle read-line ( n flag ior)
-    if  drop 0  s" Error while reading file." error  then
+    if  drop 0 33 colorize  s" Error while reading file." 0 colorize error  then
   while pad swap -trailing  x 1 and if evaluate else 2swap sa! then x 1+ to x
   repeat  drop  close  calc_all ;
 
@@ -200,7 +258,7 @@ variable ,,held   2variable form-offset
     if 1 ,,held +!
     else  pad 1+ ,,held @  ref ( x y)
        form-offset 2@ d+   2dup outside?
-       if 2drop s" Adjusted reference would be out of bounds." error 1 throw
+       if 2drop 33 colorize s" Adjusted reference would be out of bounds." 0 colorize error 1 throw
        then    swap 'a + c, s>d <# #s #>
        begin dup while over c@ c, 1 /string repeat  2drop  ,,held off
     then
@@ -222,7 +280,7 @@ variable ,,held   2variable form-offset
   begin  ekey ( Get key.)  x or   0 to mess
     case
       #esc      of  m to x                     endof
-      'q  m or  of  page exit                  endof
+      'q  m or  of  page exit	               endof
       's  m or  of  0 to x  save               endof
       'l  m or  of  0 to x  fload              endof
       'p  m or  of  0 to x  set-dec-places     endof
@@ -240,6 +298,28 @@ variable ,,held   2variable form-offset
       dup 33 128 within  if dup edit 0 1 move_rel  then
     endcase  mess 0= if  bottom ind@ sarray count type  then  at-current
   again ;
-: main  page 0.0e fillfarray emptysarray 0 to corner_x 0 to corner_y
-  mainloop ;
 
+: start
+	32 colorize 
+	cr
+	." if needed create empty file first then open it from program ( see load below ) " cr cr
+	." esc+q to quit" cr
+	." esc+s to save the openned file" cr
+	." esc+l to load file (empty if new) " cr
+	." esc+p to set dec places" cr
+	." esc+c to recalculate all page formulas" cr 
+	." esc+; copy slot" cr 
+	." esc+, paste" cr 
+	." arrow keys to move" cr cr  
+	." press a key to start" cr
+	key
+	0 colorize 
+;
+
+: main  start page 0.0e fillfarray emptysarray 0 to corner_x 0 to corner_y
+  mainloop ;
+\ here is a missing thing run main instead of gforth
+\ here is the main reason I forked the project
+main
+\ second reason the program exits the spreadsheet but not gforth interpreter
+bye
