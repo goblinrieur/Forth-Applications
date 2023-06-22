@@ -1,3 +1,4 @@
+\ 
 variable numero_ligne
 variable hauteur_pyramide
 variable nombre_de_blancs

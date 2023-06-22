@@ -11,11 +11,11 @@ variable solutions 0
 : mul3stack ( n n n -- n ) * * ;
 : run ( n -- s ) dup stackit add3stack swap dup stackit mul3stack rot 
 	= if 
-		cr . ." matches " cr 
+		cr . ." matches " cr 	\ a solution matches
 		1 solutions +!
 	then 
 ;
-: main ( -- s ) 100 -100 do i run loop cr ; 
+: main ( -- s ) 100 -100 do i run loop cr ; \ loop range to check solutions
 cr
 31 colorize 
 ." is there one or several solutions matching (n-1)+n+(n+1)=(n-1)*n*(n+1) in interval [-100;100[ as integers ?" 

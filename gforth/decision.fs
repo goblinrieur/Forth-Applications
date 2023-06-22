@@ -1,10 +1,9 @@
 : buffer: create allot ;
-DECIMAL
-variable looping
-variable rndseed
 20 constant strsize
 27 constant ESC
 decimal 100 strsize * buffer: strings \ might be enough for all use-cases
+variable looping
+variable rndseed
 $10450405 constant generator
 \  string array operators
 : [$]   ( ndx buffer -- addr[i] )   swap strsize * + ; 
