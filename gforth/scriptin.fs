@@ -1,0 +1,42 @@
+\ github.com/Veltas/demo/blob/main/script.4th
+\ Copyright 2023 Christopher Leonard - MIT Licence
+
+: CREATE-FILE!  CREATE-FILE  ABORT" failed to open file" ;
+
+: FILE-SIZE!    FILE-SIZE ABORT" failed to get file size" ;
+
+: SET-POSITION!  REPOSITION-FILE  ABORT" failed to reposition file" ;
+
+: WRITE-LINE!  WRITE-LINE  ABORT" failed to write line to file" ;
+
+: CLOSE-FILE!  CLOSE-FILE ABORT" failed to write file" ;
+
+: FAST-FORWARD! ( file)  DUP FILE-SIZE! ROT SET-POSITION! ;
+
+: OPEN-OR-CREATE! ( a u - file)
+	2DUP  W/O OPEN-FILE IF
+		DROP  W/O CREATE-FILE!
+	ELSE
+		NIP NIP
+	THEN ;
+
+: APPEND-FILE! ( a u - file)  OPEN-OR-CREATE!  DUP FAST-FORWARD! ;
+
+: REST-OF-LINE  SOURCE >IN @ /STRING ;
+
+: SCRIPT
+	PARSE-NAME  APPEND-FILE!
+	DUP  REST-OF-LINE  ROT  WRITE-LINE!
+	CLOSE-FILE! ;  IMMEDIATE
+
+0 VALUE SCRIPT-FILE
+
+: SCRIPT((
+	PARSE-NAME  APPEND-FILE!  TO SCRIPT-FILE
+	BEGIN CR REFILL WHILE SOURCE S" ))" COMPARE WHILE
+
+\ usecase 
+\ script a 1 2 3 + + . 
+\ will create file named "a" containing "1 2 3 + + ." code 
+
+

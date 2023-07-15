@@ -1,15 +1,15 @@
-: buffer: create allot ;
+DECIMAL
 20 constant strsize
 27 constant ESC
-decimal 100 strsize * buffer: strings \ might be enough for all use-cases
-variable looping
-variable rndseed
+: buffer: create allot ;
+100 strsize * buffer: strings \ might be enough for all use-cases
 $10450405 constant generator
+variable looping variable rndseed
 \  string array operators
-: [$]   ( ndx buffer -- addr[i] )   swap strsize * + ; 
-: [$]!  ( addr len ndx buffer -- ) [$] place ;
-: [$]@ 	( ndx buffer -- addr len)  [$] count ; 
-: .[$]  ( ndx buffer -- )  [$]@ type ;
+: [$]   ( ndx buffer -- addr[i] )  	swap strsize * + ; 
+: [$]!  ( addr len ndx buffer -- ) 	[$] place ;
+: [$]@ 	( ndx buffer -- addr len)  	[$] count ; 
+: .[$]  ( ndx buffer -- )  			[$]@ type ;
 \ usage
 \ s" This is string #1"  1 strings [$]!   
 \ 2 strings .[$]
@@ -27,30 +27,24 @@ $10450405 constant generator
 ;
 \ here we have words for reading numbers and texts 
 : rnd ( -- n ) rndseed @ generator um* drop 1+ dup rndseed ! ;
-: random ( n -- 0..n ) rnd um* nip 1 + ;
-: genrnd ( limit -- 1..limit ) begin random dup 10 <= until ;
+: genrnd ( limit -- 1..limit ) begin rnd um* nip 1 + dup 10 <= until ;
 : wlist? ( n of s +  s  -- s ) \ get user inputs
-	32 colorize
-	cr cr 
+	32 colorize cr cr 
 	."      Enter no more than ten (10) words of few characters maybe less than 20 each." cr
 	."      (others will just be ignored)" cr
-	cr cr 
-	33 colorize
+	cr cr 33 colorize
 	."       how many words to randomize ? " fetch-input if 1 - looping ! then
 	cr cr \ might append behind here a check about that number & re- ask user input if it is over 10 :)
 	looping @ 1 < if 1 looping ! then	\ prevent user error
 	begin
 		31 colorize
 		cr cr ."       word ? " 0 colorize strsize input$ looping @ strings [$]!	
-		looping @ 1 - looping ! looping @ 0 < 
-	until
+		looping @ 1 - looping ! 
+	looping @ 0 < until
 ;
 : main
-	wlist?
-	cr cr 
+	page wlist?  cr cr 
 	."                      " 10 genrnd strings .[$]  \ really enough for a good random seed 
 	cr cr 
 ;
-page \ clear screen before displaying messages
-main
-bye
+main bye

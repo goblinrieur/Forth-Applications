@@ -1,32 +1,27 @@
 \ Hanoi.fs
 variable counter
-
+\ display move
 : left   ." left" ;
 : right  ." right" ;
 : middle ." middle" ;
-
+\ move a disk
 : move-disk ( v t f n -- v t f )
 	dup 0= if 
 		drop exit 
 	then
 	1-       >R
 	rot swap R@ ( t v f n-1 )  recurse
-	rot swap
-	2dup cr ." Move " counter @ 1+ dup counter ! . ."  where disk goes from " execute ."  to " execute
+	rot swap 2dup cr ." Move " counter @ 1+ dup counter ! . ."  where disk goes from " execute ."  to " execute
 	swap rot R> ( f t v n-1 )  recurse
 	swap rot 
 ;
-
+\ solve
 : hanoi ( n -- )
-	0 counter ! 
-	1 max >R ['] right ['] middle ['] left R> move-disk drop drop drop 
+	0 counter ! 1 max >R ['] right ['] middle ['] left R> move-disk drop drop drop 
 ;
 
-cr ." How to use ? " cr
-cr ." 10 hanoi" cr 
-cr ." do not forget to use small number" cr
-cr ." because 2^N-1 moves are needed as a minimum"
-cr cr 
+cr ." How to use ? " cr cr ." 10 hanoi" cr cr ." do not forget to use small number" cr
+cr ." because 2^N-1 moves are needed as a minimum" cr cr 
 \ how to use it 
 \ <INT> hanoi 
 \ 10 hanoi

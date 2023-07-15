@@ -8,16 +8,13 @@ variable #clicks
 	tk-in to outfile-id 
 ;
 : }wish	\ finish command to wish
-	tk-in flush-file throw
-	stdout to outfile-id 
+	tk-in flush-file throw stdout to outfile-id 
 ; 
 
 : add-one  1 #clicks +! ;	\ get an action as example here counting clicks 
 : update-wish   wish{ .\" .label configure -text \"clicks: " #clicks @ . .\" \"" cr }wish ;	\ redraw window 
 : cleaning
-	tk-in close-file
-	tk-out close-file
-	s" rm tk-in tk-out" system \ clear temprary files for a clean code
+	tk-in close-file tk-out close-file s" rm /dev/shm/tk-in /dev/shm/tk-out" system \ clear temprary files for a clean code
 	bye
 ;
 
@@ -34,10 +31,10 @@ begin
 
 
 : initiating
-	s" mkfifo tk-in tk-out" system		\ create temporary files here new version mignt use a memory block as file
-	s" wish <tk-in >tk-out &" system	\ manage how they are used input/output to the external interpreter
-	s" tk-in" w/o open-file throw to tk-in	\ only input has to be writable
-	s" tk-out" r/o open-file throw to tk-out	\ so output is read only to get performances (how cares on modern PCs)
+	s" mkfifo /dev/shm/tk-in /dev/shm/tk-out" system		\ create temporary files here new version mignt use a memory block as file
+	s" wish </dev/shm/tk-in >/dev/shm/tk-out &" system	\ manage how they are used input/output to the external interpreter
+	s" /dev/shm/tk-in" w/o open-file throw to tk-in	\ only input has to be writable
+	s" /dev/shm/tk-out" r/o open-file throw to tk-out	\ so output is read only to get performances (how cares on modern PCs)
 	wish{ 	
 		.\" wm title . \"forth count\"" cr
 		.\" wm geometry . \"200x100+100+100\"" cr
@@ -51,12 +48,10 @@ begin
 : checkrunispossible 
 	s" which wish 1> /dev/null" system  \ system bash exexute
 	$? 0 > if				\ if TK wish tool is not installed quit
-		cr 
-		27 emit .\" [31;1m TCL-TK wish command must be installed." 
-		27 emit .\" [0m"
-		cr
-		bye
+		cr 27 emit .\" [31;1m TCL-TK wish command must be installed." 
+		27 emit .\" [0m" cr bye	
 	then
 ;
 		
-checkrunispossible initiating counting cleaning
+checkrunispossible initiating counting cleaning 
+\ exit

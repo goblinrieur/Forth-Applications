@@ -5,16 +5,13 @@
 : .row ( n -- ) 
 	cr 		\ change line
 	8 0 do 
-		dup 128 and if  
-			\ n and 128 result if put star 
+		dup 128 and if  \ n and 128 result if put star 
 			star 
 		else 
-			\ if not it is a space
-			space 
+			space \ if not it is a space
 		then  
 		2 * 
-	loop 
-	drop 
+	loop drop 
 ; 
 : shape ( s -- object ) \ permit to describe a shape from a data list
 	create 8 0 do 
@@ -24,8 +21,7 @@
 		\ creates from input the drawing shape
 		dup 7 + do 
 			I c@ .row -1 
-		+loop 
-	cr 
+		+loop cr 
 ;
 hex					\ get hexadecimal input (easiest) 
 18 18 3C 5A 99 24 24 24 shape man	\ create a man as a shape

@@ -1,7 +1,6 @@
 : ceasar ( c n -- c )
-  over 32 or [char] a -
-  dup 0 26 within if
-    over + 25 > if 26 - then +
+  over 32 or [char] a - dup 0 26 within if
+		over + 25 > if 26 - then +
   else 2drop then ;
 
 : ceasar-string ( n str len -- )

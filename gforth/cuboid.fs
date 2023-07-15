@@ -1,13 +1,11 @@
 : line ( e dy d dx c n -- )
-  spaces dup >r emit
-  9 *  1- 0 do dup emit loop drop
-  r> emit
-  spaces emit cr
+	spaces dup >r emit 9 *  1- 0 do 
+		dup emit 
+	loop drop r> emit spaces emit cr
 ;
 
 : cuboid { dz dy dx -- }
-  cr
-  bl 0 '- dx '+ dy 1+ line
+  cr bl 0 '- dx '+ dy 1+ line
   dy 0 ?do
     '| i bl dx '/ dy i - line loop
   '| dy '- dx '+ 0 line

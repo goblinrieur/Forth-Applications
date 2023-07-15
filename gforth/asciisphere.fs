@@ -2,16 +2,8 @@
 	2 pick 2 pick 2 pick 
 ;
 
-: sqrt ( u -- sqrt )           		 ( Babylonian method                 )
-	dup 2/                       	 ( first square root guess is half   )
-	dup 0= if 
-		drop exit 
-	then     			 ( sqrt[0]=0, sqrt[1]=1              )
-	begin 
-		dup >r 2dup / r> + 2/   ( stack: square old-guess new-guess )
-		2dup > while                  ( as long as guess is decreasing    )
-	nip repeat                    ( forget old-guess and repeat       )
-	drop nip 
+: sqrt ( u -- sqrt )  
+	s>f fsqrt f>d drop	\ short method to get integered  sqrt 
 ;
 
 : normalize ( x1 y1 z1 -- x1' y1' z1' )    ( normalise down to 1000 )
@@ -19,8 +11,7 @@
 	r@ / rot r@ / rot r> / rot 
 ;
 
-: r2-y2-x2 ( x y r -- z2 ) 
-	dup * swap dup * - swap dup * - 
+: r2-y2-x2 ( x y r -- z2 ) dup * swap dup * - swap dup * - 
 ;
 
 : shade ( u -- c ) 
@@ -32,8 +23,7 @@
 ;
 
 : dot-light ( x y z -- i )      ( hard coded light vector z, y, x   )
-	-770 *    rot 461 *    rot 461 *    + +
-	0 min 1000 / 
+	-770 *    rot 461 *    rot 461 *    + + 0 min 1000 / 
 ;
 
 : intensity ( x y z -- u )  
@@ -49,20 +39,15 @@
 
 : draw ( r -- )    ( r x1000 )
 	1000 * dup dup negate do
-	cr
-	dup dup negate do
-	dup I 500 + J 500 + rot pixel emit
-	500 +loop
+			cr
+			dup dup negate do
+					dup I 500 + J 500 + rot pixel emit
+			500 +loop
 	1000 +loop drop 
 ;
 
 ( now get 2 sizes of spheres for example )
-
-20 draw
-cr cr 
-10 draw
-cr cr 
-bye
+20 dup 10 - swap draw cr cr draw cr cr bye
 
 
 

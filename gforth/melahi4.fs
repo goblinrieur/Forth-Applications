@@ -24,7 +24,6 @@
 \ Content-Transfer-Encoding: quoted-printable
 \ X-Received-Bytes: 17753
 \ Xref: reader01.eternal-september.org comp.lang.forth:119881
-
 \ Le jeudi 23 février 2023 à 16:37:16 UTC, Anton Ertl a écrit :
 \ > Ahmed MELAHI <ahmed....@univ-bejaia.dz> writes: 
 \ > >Here, The last version of the program, I removed superfluous consecutive un=
@@ -60,9 +59,7 @@
 \ Here is the final version of the program magic_hexagon.
 \ Here, there is no tables to fill, the search is applied directly.
 \ The program is now reduced in size, and faster.
-
 \ ----------------------Here begins the listing
-
 \ Place the integers 1..19 in the following Magic Hexagon of rank 3
 \ __A_B_C__
 \ _D_E_F_G_
@@ -71,38 +68,14 @@
 \ __Q_R_S__
 \ so that the sum of all numbers in a straight line (horizontal and diagonal)
 \ is equal to 38.
-
 \ here begins the application
-
-0 value vA
-0 value vB
-0 value vC 
-0 value vD
-0 value vE
-0 value vF 
-0 value vG
-0 value vH
-0 value vI 
-0 value vJ
-0 value vK
-0 value vL 
-0 value vM
-0 value vN
-0 value vO 
-0 value vP
-0 value vQ
-0 value vR 
-0 value vS
-
-0 value n_sol
-
+0 value vA 0 value vB 0 value vC 0 value vD 0 value vE 0 value vF 
+0 value vG 0 value vH 0 value vI 0 value vJ 0 value vK 0 value vL 
+0 value vM 0 value vN 0 value vO 0 value vP 0 value vQ 0 value vR 
+0 value vS 0 value n_sol
 create marked 20 allot
 marked 20 erase
-
 create solutions 20 20 * allot
-
-
-
 : -- 2 .r 2 spaces ;
 : .mag_hex
 cr n_sol . ." solutions found."
@@ -127,7 +100,6 @@ cr n_sol . ." solutions found."
      16 i 20 * + solutions + c@ to vQ
      17 i 20 * + solutions + c@ to vR
      18 i 20 * + solutions + c@ to vS
-
     cr
     cr 
     4 spaces       vA -- vB -- vC -- cr 
@@ -135,15 +107,10 @@ cr n_sol . ." solutions found."
          vH -- vI -- vJ -- vK -- vL -- cr 
     2 spaces    vM -- vN -- vO -- vP -- cr 
     4 spaces       vQ -- vR -- vS -- 
-    cr
-  loop
+  loop cr
 ;
-
-
-
 : .solution 
-  cr n_sol . ." solutions found."
-  n_sol 1+ 1 
+  cr n_sol . ." solutions found." n_sol 1+ 1 
   ?do
       0 i 20 * + solutions + c@ to vA
       1 i 20 * + solutions + c@ to vB
@@ -164,44 +131,24 @@ cr n_sol . ." solutions found."
      16 i 20 * + solutions + c@ to vQ
      17 i 20 * + solutions + c@ to vR
      18 i 20 * + solutions + c@ to vS
-
      cr                       
-     ." A=" vA 2 .r space
-     ." B=" vB 2 .r space
-     ." C=" vC 2 .r space
-     ." D=" vD 2 .r space
-     ." E=" vE 2 .r space
-     ." F=" vF 2 .r space
-     ." G=" vG 2 .r space
-     ." H=" vH 2 .r space
-     ." I=" vI 2 .r space
-     ." J=" vJ 2 .r space
-     ." K=" vK 2 .r space
-     ." L=" vL 2 .r space
-     ." M=" vM 2 .r space
-     ." N=" vN 2 .r space
-     ." O=" vO 2 .r space
-     ." P=" vP 2 .r space
-     ." Q=" vQ 2 .r space
-     ." R=" vR 2 .r space
+     ." A=" vA 2 .r space ." B=" vB 2 .r space ." C=" vC 2 .r space
+     ." D=" vD 2 .r space ." E=" vE 2 .r space ." F=" vF 2 .r space
+     ." G=" vG 2 .r space ." H=" vH 2 .r space ." I=" vI 2 .r space
+     ." J=" vJ 2 .r space ." K=" vK 2 .r space ." L=" vL 2 .r space
+     ." M=" vM 2 .r space ." N=" vN 2 .r space ." O=" vO 2 .r space
+     ." P=" vP 2 .r space ." Q=" vQ 2 .r space ." R=" vR 2 .r space
      ." S=" vS 2 .r 
   loop 
-
 ;
-
-
-
-
 : solve
     0 to n_sol
     marked 20 erase
-
     \ A
     20 1 
     do
       i to vA                                  
       1 vA marked + c!
-      
       \ B
       20 1 
       do 
@@ -209,12 +156,10 @@ cr n_sol . ." solutions found."
         vB marked + c@ 0= 
         if 
           1 vB marked + c!
-
           38 vA vB + - to vC
           vC 0> 
           vC 20 < and
           vC marked + c@ 0= and
-          
           if \ C
             1 vC marked + c!
             \ G
@@ -224,14 +169,12 @@ cr n_sol . ." solutions found."
               vG marked + c@ 0=
               if 
                 1 vG marked + c! 
-
                 38 vC vG + - to vL
                 vL 0> 
                 vL 20 < and
                 vL marked + c@ 0= and
                   if 
                   1 vL marked + c!
-
                   \ PS
                   20 1 
                   do
@@ -239,14 +182,12 @@ cr n_sol . ." solutions found."
                     vP marked + c@ 0=
                     if 
                       1 vP marked + c!
-
                       38 vL vP + - to vS
                       vS 0> 
                       vS 20 < and
                       vS marked + c@ 0= and
                       if 
                         1 vS marked + c!
-
                         \ RQ
                         20 1 
                         do
@@ -254,14 +195,12 @@ cr n_sol . ." solutions found."
                           vR marked + c@ 0=
                           if 
                             1 vR marked + c! 
-
                             38 vS vR + - to vQ
                             vQ 0> 
                             vQ 20 < and
                             vQ marked + c@ 0= and
                             if 
                               1 vQ marked + c!
-
                               \ MH
                               20 1 
                               do
@@ -269,7 +208,6 @@ cr n_sol . ." solutions found."
                                 vM marked + c@ 0=
                                 if 
                                   1 vM marked + c!
-
                                   38 vQ vM + - to vH
                                   vH 0>
                                   vH 20 < and
@@ -284,7 +222,6 @@ cr n_sol . ." solutions found."
                                     vD marked + c@ 0= and 
                                     if
                                       1 vD marked + c!
-
                                       20 1 
                                       do
                                         i to vE
@@ -355,7 +292,6 @@ cr n_sol . ." solutions found."
                                                       vQ 16 n_sol 20 * + solutions + c!
                                                       vR 17 n_sol 20 * + solutions + c!
                                                       vS 18 n_sol 20 * + solutions + c!
-
 \ +-----------------------------------------------------------------------------------------------------------------------+
 \ | to get just one solution uncomment out the line hereafter, to get all solutions (12) comment out the line hereafter.  |
 \ +-----------------------------------------------------------------------------------------------------------------------+
@@ -406,26 +342,14 @@ cr n_sol . ." solutions found."
       0 vA marked + c!
     loop                                                                   \ vA
 ;
-
-
 : timing_1000 
-    utime 
-    1000 0 
-    do 
+    utime 1000 0 do 
       solve 
     loop 
-    utime 
-    d>f d>f f- 1000e f/ 
-    cr cr ." Mean execution time : " f. ." micro seconds."  
+    utime d>f d>f f- 1000e f/ cr cr ." Mean execution time : " f. ." micro seconds."  
 ; 
-
  utime solve utime d>f d>f f- cr cr ." execution time : " f. ."  micro seconds." cr cr .solution cr cr .mag_hex
 \ timing_10000
-
 \ -----------Here, the listing finishes.
-
-
 bye
-
 \ https://github.com/AntonErtl/magic-hexagon/tree/main
-

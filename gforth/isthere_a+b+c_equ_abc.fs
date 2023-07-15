@@ -16,13 +16,6 @@ variable solutions 0
 	then 
 ;
 : main ( -- s ) 100 -100 do i run loop cr ; \ loop range to check solutions
-cr
-31 colorize 
+cr 31 colorize
 ." is there one or several solutions matching (n-1)+n+(n+1)=(n-1)*n*(n+1) in interval [-100;100[ as integers ?" 
-33 colorize 
-main
-32 colorize
-solutions @ . ." solutions found." cr
-0 colorize
-cr 
-bye
+cr 33 colorize main 32 colorize solutions @ . ." solutions found." cr 0 colorize cr bye

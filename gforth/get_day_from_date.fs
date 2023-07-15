@@ -3,9 +3,7 @@
 \ a leap year is defined as a year which is exactly divisible by 4 if it is not divisible by 100, 
 \ but exactly dividable by 400 if it is.
 
-variable day
-variable month
-variable year
+variable day variable month variable year
 
 \ ( year mod 4 = 0 and year mod 100 <> 0 ) or year mod 400 = 0 
 
@@ -74,8 +72,7 @@ variable year
 \ get user input of the date he want to test
 \ check input type
 : input# ( -- true | false )
-	0. 16 pad swap accept pad swap dup >r
-	>number nip nip r> <> dup 0 = if 
+	0. 16 pad swap accept pad swap dup >r >number nip nip r> <> dup 0 = if 
 	    nip
 	then
 ;
@@ -99,7 +96,7 @@ variable year
     endcase
 ;
 
-: input?                    \ user keyboard inputs
+: askinput?                    \ user keyboard inputs
     cr ."  Day     ? "
     input# if dup day ! else ." Must be a valid day number " cr then
     cr ."  Month   ? "
@@ -114,6 +111,4 @@ variable year
     then
 ;
 
-input?
-cr
-bye
+askinput? cr bye
