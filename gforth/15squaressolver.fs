@@ -1,7 +1,6 @@
 #! /usr/bin/gforth
 
 cell 8 <> [if] s" 64-bit system required" exception throw [then]
-
 \ In the stack comments below,
 \ "h" stands for the hole position (0..15),
 \ "s" for a 64-bit integer representing a board state,
@@ -16,14 +15,13 @@ cell 8 <> [if] s" 64-bit system required" exception throw [then]
 : 4dup   2over 2over ;
 : shift   dup 0 > if lshift else negate rshift then ;
 
-hex 123456789abcdef0 decimal constant solution
+hex 123456789abcdef0 decimal constant solution	\ 0 here is the empty tile representation
 : row   2 rshift ;   : col   3 and ;
 
 : up-valid?    ( h -- f ) row 0 > ;
 : down-valid?  ( h -- f ) row 3 < ;
 : left-valid?  ( h -- f ) col 0 > ;
 : right-valid? ( h -- f ) col 3 < ;
-
 : up-cost    ( h t -- 0|1 ) 1 - row swap row < 1 and ;
 : down-cost  ( h t -- 0|1 ) 1 - row swap row > 1 and ;
 : left-cost  ( h t -- 0|1 ) 1 - col swap col < 1 and ;
@@ -59,11 +57,9 @@ create limit 1 ,   : deeper  1 limit +! ;
 \ Iterative-deepening search:
 : solve   1 limit !  begin search deeper again ;
 
-\ -1 0 hex 0c9dfbae37254861 decimal 0 solve    \ uhm.
- -1 0 hex fe169b4c0a73d852 decimal 8 solve     \ the 52 moves case
+-1 0 hex fe169b4c0a73d852 decimal 8 solve    \ the 52 moves case
 \ -1 0 hex 123456789afbde0c decimal 14 solve   \ some trivial case, 3 moves
-cr cr 
-bye
+cr cr 0 (bye)
 
 \ redefined search  
 \ solved (read right-to-left!): ddrrdlurrululddruuldlurddldrrruluuldddrurdluuldlurrr - 52 moves

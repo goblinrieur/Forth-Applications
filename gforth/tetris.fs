@@ -9,7 +9,6 @@
 \ As original autor asks it to be kept free it is OK for my own freedom mind :) 
  
 only forth also definitions
- 
 vocabulary tetris  tetris also definitions
  
 decimal
@@ -22,7 +21,6 @@ bl bl 2constant empty		\ an empty position
 variable wiping			\ if true: wipe brick, else draw brick
 2 constant col0			\ position of the pit
 0 constant row0
- 
 10 constant wide		\ size of pit in brick positions
 25 constant deep		\ 25 is a good choise for a hard scoring game (long and challenging enough) 
  
@@ -41,11 +39,8 @@ variable delay
 variable brow			\ where the brick is
 variable bcol
  
- 
 \ stupid random number generator
- 
 variable seed
- 
 : randomize	time&date + + + + + seed ! ;
  
 1 cells 4 = [IF]
@@ -112,23 +107,18 @@ variable tobeat
 ;
  
 \ Access pairs of characters in memory:
- 
 : 2c@		dup 1+ c@ swap c@ ;
 : 2c!		dup >r c! r> 1+ c! ;
- 
 : d<>		d= 0= ;
- 
  
 \ Drawing primitives:
  
 : 2emit		emit emit ;
- 
 : position	\ row col --- ; cursor to the position in the pit
 		2* col0 + swap row0 + at-xy ;
  
 : stone		\ c1 c2 --- ; draw or undraw these two characters
 		wiping @ if  2drop 2 spaces  else  2emit  then ;
- 
  
 \ Define the pit where bricks fall into:
  
@@ -140,9 +130,7 @@ def-pit pit
 : empty-pit	deep 0 do wide 0 do  empty j i pit 2c!
 		loop loop ;
  
- 
 \ Displaying:
- 
 : draw-bottom	\ --- ; redraw the bottom of the pit
 		deep -1 position
 		[char] + dup stone
@@ -204,7 +192,6 @@ def-pit pit
 : refresh	\ --- ; redraw everything on screen
 		page draw-frame draw-pit show-help update-score ;
  
- 
 \ Define shapes of bricks:
  
 : def-brick	create	4 0 do
@@ -265,7 +252,6 @@ create bricks	' brick1 ,  ' brick2 ,  ' brick3 ,  ' brick4 ,
  
 create brick-val 1 c, 2 c, 3 c, 3 c, 4 c, 5 c, 5 c,
  
- 
 : is-brick	\ brick --- ; activate a shape of brick
 		>body ['] brick >body 32 cmove ;
  
@@ -294,40 +280,37 @@ create brick-val 1 c, 2 c, 3 c, 3 c, 4 c, 5 c, 5 c,
 		loop loop  2drop ;
  
 : show-brick	\ ensure brick is yellowed while dropping ( will be painted white on row elimination & stacked states )
-		33 COLORIZE 
-		wiping off draw-brick 
-		0 COLORIZE 
+		33 COLORIZE wiping off draw-brick 0 COLORIZE 
 ;	
 : hide-brick	wiping on  draw-brick ;
  
 : put-brick	\ row col --- ; put the brick into the pit
 		4 0 do 4 0 do
-		    j i brick 2c@  empty d<>
-		    if  over j +  over i +  pit
-			j i brick 2c@  rot 2c!
+		    j i brick 2c@  empty
+			d<> if  over j +  over i +  pit
+					j i brick 2c@  rot 2c!
 		    then
 		loop loop  2drop ;
  
 : remove-brick	\ row col --- ; remove the brick from that position
 		4 0 do 4 0 do
-		    j i brick 2c@  empty d<>
-		    if  over j + over i + pit empty rot 2c!  then
+		    j i brick 2c@  empty
+			d<> if  over j + over i + pit empty rot 2c!  then
 		loop loop  2drop ;
  
 : test-brick	\ row col --- flag ; could the brick be there?
 		4 0 do 4 0 do
 		    j i brick 2c@ empty d<>
 		    if  over j +  over i +
-			over dup 0< swap deep >= or
-			over dup 0< swap wide >= or
-			2swap pit 2c@  empty d<>
+			over dup 0< swap deep >= or		\ 1st condition
+			over dup 0< swap wide >= or		\ 2cd condition
+			2swap pit 2c@  empty d<> 		\ or 3rd contition 
 			or or if  unloop unloop 2drop false  exit  then
 		    then
 		loop loop  2drop true ;
  
 : move-brick	\ rows cols --- flag ; try to move the brick
-		brow @ bcol @ remove-brick
-		swap brow @ + swap bcol @ + 2dup test-brick
+		brow @ bcol @ remove-brick swap brow @ + swap bcol @ + 2dup test-brick
 		if  brow @ bcol @ hide-brick
 		    2dup bcol ! brow !  2dup show-brick put-brick  true
 		else  2drop brow @ bcol @ put-brick  false
@@ -340,8 +323,7 @@ create brick-val 1 c, 2 c, 3 c, 3 c, 4 c, 5 c, 5 c,
 		over if  rotleft  else  rotright  then
 		if  brow @ bcol @ hide-brick
 		    if  rotright  else  rotleft  then
-		    brow @ bcol @ put-brick
-		    brow @ bcol @ show-brick  true
+		    brow @ bcol @ put-brick brow @ bcol @ show-brick  true
 		else  drop false  then ;
  
 : insert-brick	\ row col --- flag ; introduce a new brick
@@ -359,8 +341,8 @@ create brick-val 1 c, 2 c, 3 c, 3 c, 4 c, 5 c, 5 c,
  
 : line-full	\ line-no --- flag
 		true  wide 0
-		do  over i pit 2c@ empty d=
-		    if  drop false  leave  then
+		do  over i pit 2c@ empty 
+			d= if  drop false  leave  then
 		loop nip ;
  
 : remove-lines	\ ---
@@ -369,8 +351,7 @@ create brick-val 1 c, 2 c, 3 c, 3 c, 4 c, 5 c, 5 c,
 		    swap
 		    begin  1- dup 0< if  2drop exit  then  dup line-full
 		    while  1 levels +!  10 score +!  repeat
-		    swap 1-
-		    2dup <> if  2dup move-line  then
+		    swap 1- 2dup <> if  2dup move-line  then
 		again ;
  
 : to-upper	\ char --- char ; convert to upper case
@@ -416,25 +397,23 @@ create brick-val 1 c, 2 c, 3 c, 3 c, 4 c, 5 c, 5 c,
 			loop
 			1 0 move-brick  0=
 		    until
-		    remove-lines
-		    update-score
-		    adjust-delay
-		    highscore? 
+		    remove-lines update-score adjust-delay highscore? 
 		repeat 
 ;
  
 forth definitions
 
 : tt		\ --- ; play the tetris game
+		page
+		.\" \e[?25l" 	\ hide cursor
+		31 COLORIZE page
+		page
 		s" tput civis" system \ hide system cursor
 		31 COLORIZE
 		s" tetris.txt" slurp-file type key
-		0 colorize
-		initialize
-		s"  Press any key " bottom-msg key drop draw-bottom
+		0 colorize initialize s"  Press any key " bottom-msg key drop draw-bottom
 		begin
-		    play-game
-		    s"  Again? " bottom-msg key to-upper [char] Y =
+		    play-game s"  Again? " bottom-msg key to-upper [char] Y =
 		while  initialize  repeat
 		0 23 at-xy cr ;
  
@@ -443,7 +422,6 @@ only forth also definitions
 : 7CR ( -- ) 7 0 DO CR LOOP ; \ just for better exit display on terminal
 
 \ run 
-tt 
-7CR
+tt 7CR .\" \e[?25h" 0 (bye)	\ restore cursor then exit returning 0 status to system
 s" tput cnorm" system \ restore system cursor
-bye
+0 (bye)

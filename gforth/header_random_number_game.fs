@@ -68,7 +68,7 @@ variable A variable B variable C variable D variable E variable F variable GOAL 
 \ exit 
 : exitprog ( -- ) 
 	0 colorize .\" \e[?25h"	\ restore cursor
-	page bye
+	page 0 (bye)
 ; 
 \ victory process
 : victory ( -- ) 
@@ -137,7 +137,7 @@ variable A variable B variable C variable D variable E variable F variable GOAL 
 	key
 	0 colorize		\ restore default "0" coloration
 	.\" \e[?25h"	\ restore cursor
-	cr cr bye
+	cr cr 0 (bye)
 ;
 \ compare to goal
 \ if ok => win 1000 points
@@ -148,8 +148,7 @@ variable A variable B variable C variable D variable E variable F variable GOAL 
 	\ if not player can replay in loop 
 : init 
 	page .\" \e[?25l" \ hide cursor
-	randomize fillit shuffle getthem getgoal biggertile
-	0 7 at-xy 
+	randomize fillit shuffle getthem getgoal biggertile 0 7 at-xy 
 ; 
 init whichtile?  loopgame
 \ display score & exit process

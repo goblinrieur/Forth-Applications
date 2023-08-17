@@ -3,7 +3,7 @@
 create buffer 1024 allot        \ for general purpose usage redefined buffer   
 2variable out 					\ general purpose output  changed to 2variable ; idea from Armok628 on redit  
 : commandout ( "system" -- string ) 
-	r/o open-pipe throw dup buffer swap 256 swap read-file throw  swap close-pipe throw drop buffer swap out 2! 
+	r/o open-pipe throw dup buffer swap 256 swap read-file throw swap close-pipe throw drop buffer swap out 2! 
 ; 				\ system capture   
 \ random example to get a value  
 s" psql -c 'select avg(prct)*100 from jx ;' | sed '3!d' " commandout  
@@ -18,6 +18,5 @@ s" psql -c 'select avg(prct)*100 from jx ;' | sed '3!d' " commandout
 	cr
 ;
 page						\ start from clean screen
-out 2@ char . deliMITED evaluate cr test cr	\ for number found , convert it to number & draw bargraph
-bye
-
+out 2@ char . delimited evaluate cr test cr	\ for number found , convert it to number & draw bargraph
+cr 0 (bye)

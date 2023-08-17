@@ -17,11 +17,14 @@ variable counter
 ;
 \ solve
 : hanoi ( n -- )
-	0 counter ! 1 max >R ['] right ['] middle ['] left R> move-disk drop drop drop 
+	0 counter ! 1 max >R ['] right ['] middle ['] left R> move-disk 2drop drop 
 ;
 
-cr ." How to use ? " cr cr ." 10 hanoi" cr cr ." do not forget to use small number" cr
-cr ." because 2^N-1 moves are needed as a minimum" cr cr 
+\ ." How to use ? "   ." 10 hanoi"   ." do not forget to use small number" 
+\ ." because 2^N-1 moves are needed as a minimum"   
+: example cr 10 hanoi cr 0 (bye) ; 
+example
+
 \ how to use it 
 \ <INT> hanoi 
 \ 10 hanoi

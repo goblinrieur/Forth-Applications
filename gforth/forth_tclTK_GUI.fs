@@ -15,7 +15,7 @@ variable #clicks
 : update-wish   wish{ .\" .label configure -text \"clicks: " #clicks @ . .\" \"" cr }wish ;	\ redraw window 
 : cleaning
 	tk-in close-file tk-out close-file s" rm /dev/shm/tk-in /dev/shm/tk-out" system \ clear temprary files for a clean code
-	bye
+	cr 0 (bye)
 ;
 
 : counting
@@ -49,7 +49,7 @@ begin
 	s" which wish 1> /dev/null" system  \ system bash exexute
 	$? 0 > if				\ if TK wish tool is not installed quit
 		cr 27 emit .\" [31;1m TCL-TK wish command must be installed." 
-		27 emit .\" [0m" cr bye	
+		27 emit .\" [0m" cr 0 (bye)
 	then
 ;
 		

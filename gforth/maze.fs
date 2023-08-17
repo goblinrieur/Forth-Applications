@@ -114,7 +114,7 @@ HEIGHT 1- WIDTH * bits CONSTANT SOUTH-WALLS
                                                     HEIGHT 0 ?do i aisle loop
                                                     top-bottom. ;
 : maze                  ( width height -- )         build-maze maze. ;
-maze cr bye
+page maze cr 0 (bye)
 \ width : 10 
 \ height: 10 
 \ +--+--+--+--+--+--+--+--+--+--+

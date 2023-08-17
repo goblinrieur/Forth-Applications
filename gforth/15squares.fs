@@ -3,11 +3,13 @@ cell 8 <> [if] s" 64-bit system required" exception throw [then]
 \ who still ave a 32 bit .... over 2020... this simplify the code a lot :) 
 \ This is forked from rosettacode http://www.rosettacode.org/wiki/15_Puzzle_Game#Forth at first 
 \ fork is WIP since 2020-09-24
-: checkversion version-string 2 - s\" 0.7" str= 0 >= if 
-		cr 
-		." you might update your gnu-forth version" cr
-		." prehistoric age is over" cr
-		cr bye then
+: checkversion version-string s" 0.7" search true = if \ searches for any 0.7.* string of version 
+			drop drop 
+		else
+				cr 
+				." you might update your gnu-forth version" cr
+				." prehistoric age is over" cr
+				cr .\" \e[?25h" 1 (bye) then
 ;
 \ below stack comments are : 
 \ "s" for a 64-bit integer representing a board state,
@@ -23,12 +25,15 @@ decimal
 : COLORIZE ESC EMIT ." [" base @ >R 0 <# #S #> type R> base ! ." m"  ; \ ASCII TERMINAL ONLY 
 \ compare movement 
 0 constant up 1 constant left 2 constant right 3 constant down
- 
+\ defines the solution for winning conditions test
 hex 123456789abcdef0 decimal constant solution
 \ get constant solution to manage shuffle random play board & compare it to win avoid many useless code
 \ move count
 variable movecount
 \ Utility
+: exitprog ( -- restore cursor & exit ) 
+	cr 0 colorize cr  .\" \e[?25h" 0 (bye) 
+; 	
 : movecount+ ( x -- x+1 )
 	movecount @ 1 + movecount !
 ;
@@ -38,8 +43,7 @@ variable movecount
 ;
 : 3dup   2 pick 2 pick 2 pick 
 ;
-: 4dup   
-	2over 2over 
+: 4dup   2over 2over 
 ;
 : shift   
 	dup 
@@ -68,7 +72,6 @@ variable movecount
 : right-valid? ( h -- f ) 
 	col 3 < 
 ;
- 
 \ To iterate over all possible directions, put direction-related functions into arrays:
 : iterate ( u addr -- w ) 
 	swap cells + @ 
@@ -80,7 +83,6 @@ create valid? ' up-valid? , ' left-valid? , ' right-valid? , ' down-valid? ,
 create step -4 , -1 , 1 , 4 , 
 	does> iterate 
 ;
- 
 \ Advance from a single state to another:
 : bits ( h -- b ) 
 	15 swap - 4 * 
@@ -102,7 +104,6 @@ create step -4 , -1 , 1 , 4 ,
 		then 
 	loop drop 
 ;
- 
 \ Print the empty chars for hole
 : .hole   
 	 3 spaces
@@ -128,14 +129,12 @@ create step -4 , -1 , 1 , 4 ,
 	loop drop 
 ;
 : .help   
-	cr cr 32 colorize
-	3 spaces ."  i" cr
-	3 spaces ." jkl move," cr
-	3 spaces ." q quit" cr 0 colorize
+	cr cr 32 colorize 3 spaces ."  i" cr
+	3 spaces ." jkl move," cr 3 spaces ." q quit" cr 0 colorize
 ;
 \ Pseudo-random number generator:
 create (rnd)   utime drop ,
-: rnd   
+: rnd  \ initialize random seed 
 	(rnd) @ dup 13 lshift xor dup 17 rshift xor dup dup 5 lshift xor (rnd) ! 
 ;
 : move ( s u -- s' ) 
@@ -154,18 +153,18 @@ create (rnd)   utime drop ,
 		rnd 3 and ?move 
 	loop 
 ;
-: win   
-	cr 41 colorize ." you won!" cr cr 0 colorize bye 
+: win ( -- won )
+	cr 41 colorize ." you won!" 0 colorize exitprog \ bye with 0
 ;
 : gameloop ( s -- )
 	page cr cr dup .movecount .board .help
-	key case
-		[char] q of cr cr bye endof
+	key case	\ check keys
+		[char] q of exitprog endof
 		[char] i of down ?move endof
 		[char] j of right ?move endof
 		[char] k of up ?move endof
 		[char] l of left ?move endof
-		[char] Q of cr cr bye endof
+		[char] Q of exitprog endof
 		[char] I of down ?move endof
 		[char] J of right ?move endof
 		[char] K of up ?move endof
@@ -173,15 +172,18 @@ create (rnd)   utime drop ,
 	endcase 
 ;
  
-: main
+: main ( -- )
 	begin 
-	dup 
-	solution <> while  \ runs until either user quits either current board = solution constant
+	dup solution <> while  \ runs until either user quits either current board = solution constant
 		gameloop 
 	repeat 
 	win 
 ;
 \ main game : 
-checkversion		\ guess it is useless but ... just in case...
-solution 1000 shuffle	\ random seed for board 
-main			\ plays until solution or user quit 
+: initialyze ( -- )
+		checkversion			\ guess it is useless but ... just in case...
+		.\" \e[?25l"			\ hide cursor
+		solution 1000 shuffle	\ random seed for board 
+		main					\ plays until solution or user quit 
+;
+initialyze

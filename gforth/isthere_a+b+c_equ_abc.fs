@@ -12,10 +12,9 @@ variable solutions 0
 : run ( n -- s ) dup stackit add3stack swap dup stackit mul3stack rot 
 	= if 
 		cr . ." matches " cr 	\ a solution matches
-		1 solutions +!
+		1 solutions +!			\ count solutions
 	then 
 ;
 : main ( -- s ) 100 -100 do i run loop cr ; \ loop range to check solutions
-cr 31 colorize
-." is there one or several solutions matching (n-1)+n+(n+1)=(n-1)*n*(n+1) in interval [-100;100[ as integers ?" 
-cr 33 colorize main 32 colorize solutions @ . ." solutions found." cr 0 colorize cr bye
+cr 31 colorize ." is there one or several solutions matching (n-1)+n+(n+1)=(n-1)*n*(n+1) in interval [-100;100[ as integers ?" 
+cr 33 colorize main 32 colorize solutions @ . ." solutions found." cr 0 colorize cr 0 (bye) 

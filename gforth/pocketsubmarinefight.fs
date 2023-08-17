@@ -43,6 +43,7 @@ variable rndseed
 	R> base ! ." m"  
 ; 
 \ display intro & help
+: cursor 0 = if .\" \e[?25l" else .\" \e[?25h" then ;
 : intro ( f -- t ) 
 	33 colorize
 	cr s" ./gamedata/intro.txt" slurp-file type
@@ -71,9 +72,7 @@ variable rndseed
 	else
 		. ." action."
 	then
-	cr cr 
-	0 colorize
-	bye 
+	cr cr 0 colorize 1 cursor 0 (bye)
 ; 
 \ define initial values for submarine 1
 : initsubone ( -- ) 
@@ -570,5 +569,4 @@ variable rndseed
 	playerturn
 	exitgame
 ;
-main
-
+0 cursor main

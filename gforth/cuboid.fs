@@ -17,5 +17,6 @@
   bl 0 '- dx '+ 0 line
 ;
 
-
+: example 4 3 2 cuboid cr 0 (bye) ; 
+example
 \ 4 3 2 cuboid

@@ -6,4 +6,4 @@
 : close-output ( -- )  fd-out close-file throw ;
 
 : read s" filename ? " getfname open-output close-output ; 
-read
+read cr 0 (bye) 

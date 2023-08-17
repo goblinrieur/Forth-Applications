@@ -88,29 +88,31 @@ create apple 2 cells allot
 	wall? crossing? or 
 ;
 
+hex
 : draw-frame ( -- ) 
-	0 0 at-xy xdim 0 ?do 
-		." *" 
+	0 0 at-xy xdim 2 / 0 ?do 
+		hex 26ab xemit decimal
 	loop
 	ydim 0 ?do 
-		xdim i at-xy ." *" cr ." *" 
+		xdim i at-xy hex 26ab xemit cr 26ab xemit decimal
 	loop 
-	xdim 0 ?do 
-		." *" 
+	xdim 2 / 0 ?do 
+		hex 26ab xemit decimal
 	loop cr 
 ;
+decimal
 
 : draw-snake ( -- ) 
 	32 colorize
 	length @ 0 ?do 
-		i segment 2@ at-xy ." #" 
+		i segment 2@ at-xy ." #"
 	loop 
 	0 colorize
 ;
 
 : draw-apple ( -- ) 
 	31 colorize
-	apple 2@ at-xy ." @" 
+	apple 2@ at-xy ." @"
 	0 colorize
 ;
 

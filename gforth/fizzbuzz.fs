@@ -3,5 +3,5 @@
 : FIZZ-BUZZ?  DUP FIZZ? SWAP BUZZ? OR INVERT ; \ fizzbuzz 
 : DO-FIZZ-BUZZ  25 1 DO CR i FIZZ-BUZZ? IF i . THEN LOOP ; \ classical coding exercise
 DO-FIZZ-BUZZ
-cr bye
+cr 0 (bye)
 

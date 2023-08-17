@@ -37,17 +37,14 @@
     bit-position       \ addr bit byte
     rot                \ bit byte addr
     cell+ + swap ;     \ addr' bit
-    
 : set-true ( addr u -- )
     1 swap lshift over \ addr mask addr
     c@ or swap c! ;
-    
 : set-false ( addr u -- )
     1 swap lshift invert over \ addr mask addr
     c@ and swap c! ;
 : set ( addr u f -- )
     if set-true else set-false then ;
-    
 : set-bit ( bits u f -- )
     { f } find-bit f set ;
 : set-bits-at-addr ( addr u-start u-stop f -- )

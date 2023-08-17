@@ -27,8 +27,7 @@ create hidden 4 allot
 : init
   begin
     hidden 4 bounds do 9 random '1 + i c! loop
-    hidden 4 ok?
-  until ;
+    hidden 4 ok? until ;
 
 : check? ( addr -- solved? )
   0
@@ -40,14 +39,12 @@ create hidden 4 allot
       then
     loop drop
   loop nip
-  8 /mod tuck . ." bulls, " . ." cows"
-  4 = ;
+  8 /mod tuck . ." bulls, " . ." cows" 4 = ;
 
 : guess: ( "1234" -- )
   bl parse 2dup 
   ok? 0= if 2drop ." Bad guess! (4 unique digits, 1-9)" exit then
-  drop check? if cr ." You guessed it!" bye then ;
-
+  drop check? if cr ." You guessed it!" cr 0 (bye)  then ;
 
 : main ( -- ) 
 	init
@@ -55,7 +52,6 @@ create hidden 4 allot
 	cr cr ."	use bye to exit "
 	cr cr
 ; 
-
 
 main
 

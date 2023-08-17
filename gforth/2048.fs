@@ -75,9 +75,11 @@ variable score
 \ for better display only 
 : fivespaces ( -- ) 5 SPACES
 ;
+: exitprog  CR CR .\" \e[?25h" 0 (bye) \ restore cursor on exit 
+;
  
 : missunderstooddirection ( -- ) \ exit on input error
-	." Unknown direction constant: " . cr BYE 
+	." Unknown direction constant: " . cr exitprog
 ;
 : boardscore# 
 	1 SWAP LSHIFT 
@@ -176,8 +178,7 @@ variable score
 		TRUE havemoved? !
 		DUP @ ( ... dest-addr other-addr other-val )
 		ROT ( ... other-addr other-val dest-addr ) ! ( ... other-addr )
-		0 SWAP !
-		NIP TRUE SWAP
+		0 SWAP !  NIP TRUE SWAP
 	ELSE
 		2DROP
 	THEN
@@ -238,7 +239,7 @@ variable score
 			I lostmove? AND 
 		LOOP
 		IF 
-			CR CR highscore?	fivespaces ." You lose!" CR CR BYE 
+			CR CR highscore?	fivespaces ." You lose!" exitprog
 		THEN
 	THEN
 ;
@@ -247,7 +248,7 @@ variable score
 	rows# 0 ?DO
 		cols# 0 ?DO
 			J I board @ boardscore# 2048 >= IF 
-				CR CR highscore?  fivespaces ." You win!" CR CR BYE 
+				CR CR highscore?  fivespaces ." You win!" exitprog
 			THEN
 		LOOP
 	LOOP
@@ -264,7 +265,7 @@ variable score
 ;
 \ display ingame help
 : displayhlp ( -- )
-	page 
+	page .\" \e[?25l" 	\ hide cursor
 	44 colorize CR CR 
 	fivespaces ." Welcome to the Gnu-forth written 2048 game" fivespaces
 	0 colorize CR CR 32 colorize
@@ -283,8 +284,8 @@ variable score
 : moveget? ( -- move )
 	BEGIN
 		KEY CASE
-			[CHAR] q OF gamescore# @ score ! highscore? CR CR BYE ENDOF		\ authorize quitting the game from keyboard
-			[CHAR] Q OF gamescore# @ score ! highscore? CR CR BYE ENDOF
+			[CHAR] q OF gamescore# @ score ! highscore? exitprog eNDOF		\ authorize quitting the game from keyboard
+			[CHAR] Q OF gamescore# @ score ! highscore? exitprog ENDOF
 			[CHAR] i OF up___align TRUE ENDOF
 			[CHAR] I OF up___align TRUE ENDOF
 			[CHAR] k OF down_align TRUE ENDOF
@@ -310,9 +311,8 @@ variable score
 : main ( -- ) 
 	BEGIN
 		moveget?  needanext?  gamescore# @ score !  highscore?
-	AGAIN
-        CR CR BYE
+	AGAIN exitprog
 ;
  
 \ start game by default immediately
-displayhlp preload main
+displayhlp preload main exitprog

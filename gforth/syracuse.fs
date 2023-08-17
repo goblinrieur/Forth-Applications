@@ -46,7 +46,7 @@ variable n
 ;
 
 input? 
-bye
+cr 0 (bye)
 
 
 

@@ -12,4 +12,4 @@
   ." 1 : 1" cr				\ displays results
   1+ 2 ?do i . ." : " i .factors cr loop ;
 
-15 main bye
+cr 15 main cr 0 (bye)

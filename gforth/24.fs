@@ -36,9 +36,8 @@ require random.fs
 	begin 9 random s>f d f! d f@ [19]? until 
 ;
 : exitprog
-	s" tput cnorm" system
-	0 colorize
-	bye
+	 .\" \e[?25h"	\ restore cursor
+	0 colorize 0 (bye)
 ;
 : DO-OPERATIONS ( -- )
 	\ apply operations manually
@@ -105,12 +104,11 @@ require random.fs
 ; 
 : play-24 ( -- ) \ main
 	time&date + + + * * seed !
-	rnd
-	INPUT-NUMBERS
-	EVALUATE-EXPRESSION
+	rnd INPUT-NUMBERS EVALUATE-EXPRESSION
 ;
+page 
 3 set-precision				\ keep easy
-s" tput civis" system			\ remove cursor
+ .\" \e[?25l" 				\ hide cursor
 31 colorize
 s" ./gamedata/24.txt" slurp-file type	\ display a nice 24 at start
 33 colorize

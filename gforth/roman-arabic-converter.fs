@@ -116,7 +116,7 @@ variable column# ( current-offset )
 	1000 /mod	thousands 	digit
 	100 /mod 	hundreds 	digit
 	10 /mod 	tens		digit
-			ones		digit
+				ones		digit
 ;
 
 : bootmessage	\ help to user
@@ -135,21 +135,21 @@ variable column# ( current-offset )
 		2drop >arabic
 	THEN 
 ; 
+: exitprog cr cr 0 (bye) ; \ exit 
 
 : again? ( [char] q -- )
 		cr ." again ? "	\ user might quit in many ways even ctrl-C
 		key case
-			[char] q of cr cr bye endof
-			[char] Q of cr cr bye endof
-			[char] n of cr cr bye endof
-			[char] N of cr cr bye endof
+			[char] q of exitprog endof
+			[char] Q of exitprog endof
+			[char] n of exitprog endof
+			[char] N of exitprog endof
 		endcase
 ;
 
 : main ( -- ) 
 	begin
-		bootmessage
-		isnum? 
+		bootmessage isnum? 
 		again?		\ loop or not as a user choice.
 	again
 ;

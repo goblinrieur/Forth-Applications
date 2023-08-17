@@ -6,6 +6,10 @@
 	CR f. cr		 \ display result
 ;
 
+: example 3 0 do kmh loop cr 0 (bye) ; 
+
+example
+
 \ 12.3e0 kmh
 
 \ 3.41666666666667 

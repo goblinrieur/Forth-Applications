@@ -163,9 +163,9 @@ create outputgraph SIZE cells allot	\ general purpose array
 \ exit program
 : exitprogram ( -- exit )
 	cr 
-	0 colorize
+	0 dup colorize
 	cr
-	bye
+	(bye) 
 ;
 
 \ get user input of the date he want to test

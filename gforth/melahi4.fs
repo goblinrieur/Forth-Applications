@@ -351,5 +351,5 @@ cr n_sol . ." solutions found."
  utime solve utime d>f d>f f- cr cr ." execution time : " f. ."  micro seconds." cr cr .solution cr cr .mag_hex
 \ timing_10000
 \ -----------Here, the listing finishes.
-bye
+0 (bye)
 \ https://github.com/AntonErtl/magic-hexagon/tree/main

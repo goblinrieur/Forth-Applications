@@ -70,10 +70,10 @@ time&date  * + - * * (rnd) ! \ seed
 \ functions for map management and user actions
 : detectmapborder 
 	31 colorize
-	xpos @ mapxsize @ > IF ." ROBOT IS LOST : YOU LOOSE" CR bye THEN
-	xpos @ 0 < IF ." ROBOT IS LOST : : YOU LOOSE" CR bye THEN
-	ypos @ 0 < IF ." ROBOT IS LOST : : YOU LOOSE" CR bye THEN
-	ypos @ mapysize @ > IF ." ROBOT IS LOST : : YOU LOOSE" CR bye THEN
+	xpos @ mapxsize @ > IF ." ROBOT IS LOST : YOU LOOSE" CR 0 (bye)  THEN
+	xpos @ 0 < IF ." ROBOT IS LOST : : YOU LOOSE" CR 0 (bye)  THEN
+	ypos @ 0 < IF ." ROBOT IS LOST : : YOU LOOSE" CR 0 (bye)  THEN
+	ypos @ mapysize @ > IF ." ROBOT IS LOST : : YOU LOOSE" CR 0 (bye)  THEN
 	0 colorize
 	1 energiedec 
 ;
@@ -96,7 +96,7 @@ time&date  * + - * * (rnd) ! \ seed
 \ we need to check often battery state of the rover
 : batterystatus 
 	33 colorize
-	battery @ dup CR ." BATTERY STATE :" . ." %" CR 1 < IF ." ERROR BATTERY EMPTY : YOU LOOSE !" CR bye THEN
+	battery @ dup CR ." BATTERY STATE :" . ." %" CR 1 < IF ." ERROR BATTERY EMPTY : YOU LOOSE !" CR 0 (bye)  THEN
 	0 colorize
 	1 energiedec 
 ;
@@ -286,7 +286,7 @@ time&date  * + - * * (rnd) ! \ seed
 \ fake ping to the rover
 : ping CR ." PING ?" CR 
 	5 0 DO 1000rnd got @ dup MS dup 
-		0 = IF ." SIGNAL LOST" bye THEN
+		0 = IF ." SIGNAL LOST" 0 (bye)  THEN
 		. ."  ms"  CR 
 	LOOP 
 ;
@@ -364,7 +364,7 @@ time&date  * + - * * (rnd) ! \ seed
 : autodestroy 
 	CR CR CR ." ...." 10 MS ." ...." 100 MS ." ...." 
 	100 MS ." ...." CR CR 31 colorize ." B*O*O*M" 0 colorize CR CR CR i
-	s" tput cnorm" system bye 
+	s" tput cnorm" system 0 (bye)  
 ;
 
 
@@ -406,8 +406,8 @@ begin
 		[CHAR] N OF sw ENDOF
 		[CHAR] , OF s ENDOF
 		[CHAR] ; OF se ENDOF
-		[CHAR] Q OF ady cr s" tput cnorm" system bye ENDOF
-		[CHAR] q OF ady cr s" tput cnorm" system bye ENDOF
+		[CHAR] Q OF ady cr s" tput cnorm" system 0 (bye)  ENDOF
+		[CHAR] q OF ady cr s" tput cnorm" system 0 (bye)  ENDOF
 		[CHAR] c OF co ENDOF
 		[CHAR] C OF co ENDOF
 		[CHAR] x OF ca ENDOF

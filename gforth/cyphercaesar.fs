@@ -2,7 +2,7 @@
 \ default can be overwritten while calling main program with top stack integer value
 
 variable caesar 3
-
+decimal
 : mymsg ( – len ) pad 20 erase pad 20 accept ;
 : ciphershift ( char – shiftedchar ) dup 97 120 within if caesar @ + else 23 - then ;
 : cipherout mymsg ." ->" 0 do pad i + c@ ciphershift emit loop ;
@@ -15,4 +15,5 @@ variable caesar 3
 	cipherout
 	cr
 ;
+page cr mymsg main cr 0 (bye) 
 

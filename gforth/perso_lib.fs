@@ -10,6 +10,7 @@ variable soixantequatre		\ 64bits testing
 : COLORIZE ESC EMIT ." [" base @ >R 0 <# #S #> type R> base ! ." m"  ;	\ ASCII TERMINAL ONLY 
 : hidecursor   .\" \e[?25l" ; 	\ escape sequence
 : showcursor   .\" \e[?25h" ; 	\ escape sequence
+: cursor 0 = if .\" \e[?25l" else .\" \e[?25h" then ;	\ 0 disable cursor anyother values restores it
 \ randomize (init random) 
 : randomize  ( -- )		rnd time&date 4 0 do + loop * + seed ! ;	\ init random seed
 \ system
@@ -26,6 +27,7 @@ variable soixantequatre		\ 64bits testing
 : mul3stack ( n n n -- n ) * * ;
 : pi ( 3.1415. )		355e 113e f/ ; 
 : e ( 2.71828..)		25946e 9545e f/ ; 
+: 2En ( n -- 2^n ) 	1 swap ?dup if 0 do 2* loop  then ;	
 : sqrt(2) ( 1.4142 )	27720e 19601e f/ ; 
 : squared ( n -- n * n )	dup * ; 
 : cubed ( n -- n * n * n )	dup squared * ; 
@@ -51,6 +53,9 @@ variable soixantequatre		\ 64bits testing
 : f ( n[°c] -- n[°f] ) 32 - 5 9 */ . ;
 \ number input
 : input ( -- n )	pad 5 blank pad 5 accept >r 0. pad r> >number 2drop drop ; 
+: fetch-input ( - n f ) \ check if input is a number or a string
+    pad strsize accept pad swap s>number? >r d>s r>
+;
 \ bargraph
 : bar  ( v y x --) 	2dup at-xy .\" [" 100 spaces .\" ]" swap 1 + swap at-xy 0 DO     .\" #" LOOP cr ; 	\ draws bar as [####.....   ] with V "#"'s 
 : pourcentbar ( y -- ) 		0 swap at-xy .\" [" 100 spaces .\" ]" ;  	\ draws a bar limits 
@@ -60,3 +65,10 @@ variable soixantequatre		\ 64bits testing
 \ odd or even
 : say-odd 100 dup dup 11 + 3 0 do emit loop ;			\ displays odd
 : say-even 110 101 118 over 4 0 do emit loop ;			\ displays even
+\ exit whit return state to system
+: exit_1 1 (bye) ;
+: exit_0 0 (bye) ;
+: y? ( char -- flag ) dup [CHAR] y = swap [CHAR] Y = or ;	\ [y|Y]es question test on Y
+: 3Dmul ( x y z n -- nx ny nz ) 	dup >r * rot r@ * rot r> * rot ; 	\ multiply all of 3D coordonates by same number
+: sigma ( n .. m -- n+ N+1 ...M ) 	dup 0= if exit then 0 swap 0 do I + LOOP ; 	\ sum the integers from 0 to n-1
+: runner ( -- ) 0 cursor main 1 cursor cr 0 (bye) ; 	\ some sort of standard runner to be used 

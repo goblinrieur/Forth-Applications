@@ -12,3 +12,12 @@
 	cr f. cr
 ;
 
+: example 
+	." kmh" cr
+	3 0 do  kmh loop cr
+	." knots" cr
+	3 0 do  knots loop cr
+	0 (bye)
+; 
+
+example
