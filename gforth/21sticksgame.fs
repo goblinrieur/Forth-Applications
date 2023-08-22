@@ -1,14 +1,13 @@
-\
-\ 21 sticks game
-\
 \ loads random lib to get random seed & random function
 require random.fs
-\
 \ defines ref 
+-28 constant key-ctrl-c-ior	\ trap control+c key code
 21 constant ref
 variable joueur 	\ alternate computer/player
 variable batons		\ sticks ( squares in there )
-\
+: key ( -- x ) \ redefine key to manage trap on CTRL+C
+  ['] key catch dup key-ctrl-c-ior = if exit then throw
+;
 : curseur ( true|anything-else -- display cursor | or not )
 	0 = if .\" \e[?25l" else .\" \e[?25h" then 
 ;
@@ -47,7 +46,7 @@ variable batons		\ sticks ( squares in there )
 ;
 : executejeu
 	preparejeu dessinecarres
-	begin
+	begin	\ removes asked number of tiles if [1;4]
 	joueur @ true = if \ if it is player turn interactively ask for a key 
 		3 3 at-xy ." How much to remove ?       " key .\" \b " case	\ replace input by Unicode char [1;4]
 			113 of quitterlejeu endof

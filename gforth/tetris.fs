@@ -5,33 +5,31 @@
 \		Please copy and share this program, modify it for your system
 \		and improve it as you like. But don't remove this notice.
 \		Thank you.
-
-\ As original autor asks it to be kept free it is OK for my own freedom mind :) 
+\ As original author asks it to be kept free it is OK for my own freedom mind :) 
+\ current version questions ask goblinrieur@gmail.com
  
 only forth also definitions
 vocabulary tetris  tetris also definitions
  
 decimal
 27 CONSTANT ESC 
+-28 CONSTANT ctrlC	\ trap ctrl+C
 : COLORIZE ESC EMIT ." [" base @ >R 0 <# #S #> type R> base ! ." m"  ; \ ASCII TERMINAL ONLY 
- 
+
 \ Variables, constants
- 
 bl bl 2constant empty		\ an empty position
 variable wiping			\ if true: wipe brick, else draw brick
 2 constant col0			\ position of the pit
 0 constant row0
 10 constant wide		\ size of pit in brick positions
-25 constant deep		\ 25 is a good choise for a hard scoring game (long and challenging enough) 
- 
-char J	value left-key		\ customize if you don't like them
-char K	value rot-key
-char L	value right-key
-bl	value drop-key
-char P	value pause-key
-12	value refresh-key
-char Q	value quit-key
- 
+25 constant deep		\ 25 is a good choice for a hard scoring game (long and challenging enough) 
+char J value left-key		\ customize if you don't like them
+char K value rot-key
+char L value right-key
+bl value drop-key
+char P value pause-key
+12 value refresh-key
+char Q value quit-key
 variable score			\ need to add high-score savings 
 variable pieces
 variable levels
@@ -39,15 +37,19 @@ variable delay
 variable brow			\ where the brick is
 variable bcol
  
+: miplace  over >r rot over 1+ r> move c! ; \ just replace deprecated place word
 \ stupid random number generator
 variable seed
 : randomize	time&date + + + + + seed ! ;
+
+\ cursor management needed in two vocabulary's
+: curseur ( true|anything-else -- display cursor | or not )
+	0 = if .\" \e[?25l" else .\" \e[?25h" then 
+;
  
 1 cells 4 = [IF]
 $10450405 Constant generator
- 
 : rnd  ( -- n )  seed @ generator um* drop 1+ dup seed ! ;
- 
 : random ( n -- 0..n-1 )  rnd um* nip ;
 [ELSE]
 : random	\ max --- n ; return random number < max
@@ -56,12 +58,10 @@ $10450405 Constant generator
 [THEN]
 
 \ Prepare saving score file
-
 4 constant max-line
 0 value fid1
 create line-buffer max-line 2 + allot
-create fname 8 allot s" .score" fname place					\ nice way to assign a file name 
-
+create fname 8 allot s" .score" fname miplace					\ nice way to assign a file name 
 variable #src-fd-in
 variable 'src-fd-in
 variable fd-in
@@ -149,10 +149,16 @@ def-pit pit
 		deep over 2/ wide swap - 2/ position type ;
  
 : draw-line	\ line ---
-		dup 0 position  wide 0 do  dup i pit 2c@ 2emit  loop  drop ;
+		dup 0 position  wide 0 do 
+			dup i pit 2c@ 2emit 
+		loop  drop 
+;
  
 : draw-pit	\ --- ; draw the contents of the pit
-		deep 0 do  i draw-line  loop ;
+		deep 0 do
+			i draw-line 
+		loop
+;
  
 : show-key	\ char --- ; visualization of that character
 		dup bl <
@@ -164,7 +170,7 @@ def-pit pit
 		32 colorize
 		30  1 at-xy ." ***** T E T R I S *****"
 		30  2 at-xy ." ======================="
-		30  4 at-xy ." Use keys:"
+		30  4 at-xy ." Use keys: (or arrows)"
 		32  5 at-xy left-key	show-key ."  Move left"
 		32  6 at-xy rot-key	show-key ."  Rotate"
 		32  7 at-xy right-key	show-key ."  Move right"
@@ -177,10 +183,10 @@ def-pit pit
 		30 18 at-xy ." Pieces:"
 		30 19 at-xy ." Levels:"
 		30 20 at-xy displayscoretobeat
-		0 27 at-xy ."  ==== This program was written 1994 in pure dpANS Forth by Dirk Uwe Zoller ===="
+		0 27 at-xy ."  ==== This program was written 1994 in pure   ANS Forth by Dirk Uwe Zoller ===="
 		0 28 at-xy ."  =================== Copy it, port it, play it, enjoy it! =====================" 
 		0 29 at-xy ."  =========== Forked on 2020 09 19 for fun purpose = goblinrieur@gmail.com =====" 
-		0 30 at-xy ."  =========== 2023 05 31 last changes ============== goblinrieur@gmail.com =====" 
+		0 30 at-xy ."  =========== 2023 08 21 last changes ============== goblinrieur@gmail.com =====" 
 		0 colorize 
 ;
  
@@ -304,7 +310,7 @@ create brick-val 1 c, 2 c, 3 c, 3 c, 4 c, 5 c, 5 c,
 		    if  over j +  over i +
 			over dup 0< swap deep >= or		\ 1st condition
 			over dup 0< swap wide >= or		\ 2cd condition
-			2swap pit 2c@  empty d<> 		\ or 3rd contition 
+			2swap pit 2c@  empty d<> 		\ or 3rd condition 
 			or or if  unloop unloop 2drop false  exit  then
 		    then
 		loop loop  2drop true ;
@@ -358,20 +364,34 @@ create brick-val 1 c, 2 c, 3 c, 3 c, 4 c, 5 c, 5 c,
     dup [char] a [char] z 1+ within if
 	bl -
     then ;
- 
+
 : interaction	\ --- flag
-		case  key to-upper
-		    left-key	of  0 -1 move-brick drop  endof
-		    right-key	of  0  1 move-brick drop  endof
-		    rot-key	of  0 rotate-brick drop  endof
-		    drop-key	of  drop-brick  endof
-		    pause-key	of  S"  paused " bottom-msg  key drop
-				    draw-bottom  endof
-		    refresh-key	of  refresh  endof
-		    quit-key	of  false exit  endof
-		endcase  true ;
+	\ ctrl+c is a boss-key ( emergency exit ) if run from shell script
+	['] ekey catch dup -28 = if drop exit then throw ekey>char if to-upper ( printable char ) 
+		case
+		   left-key		of  0 -1 move-brick drop  endof
+		   right-key	of  0  1 move-brick drop  endof
+		   rot-key		of  0 rotate-brick drop  endof
+           drop-key		of  drop-brick	endof
+           refresh-key	of  refresh		endof
+           quit-key		of  false exit  endof
+       endcase  
+	else 
+			ekey>fkey if ( arrow key-id ) \ to allows also that mode
+				case
+					k-left	of	0 -1 move-brick drop	endof
+					k-right	of	0  1 move-brick drop	endof
+					k-up	of	0 rotate-brick drop		endof
+					k-down	of	drop-brick				endof
+				endcase 
+			else
+				drop \ ignore other key
+			then
+	then true
+;
  
 : initialize	\ --- ; prepare for playing
+		false curseur 	\ hide cursor
 		randomize empty-pit refresh
 		0 score !  0 pieces !  0 levels !  100 delay ! ;
  
@@ -404,24 +424,19 @@ create brick-val 1 c, 2 c, 3 c, 3 c, 4 c, 5 c, 5 c,
 forth definitions
 
 : tt		\ --- ; play the tetris game
-		page
-		.\" \e[?25l" 	\ hide cursor
-		31 COLORIZE page
-		page
-		s" tput civis" system \ hide system cursor
-		31 COLORIZE
-		s" tetris.txt" slurp-file type key
-		0 colorize initialize s"  Press any key " bottom-msg key drop draw-bottom
+		page false curseur 	\ hide cursor
+		31 COLORIZE page s" tetris.txt" slurp-file type key
+		0 colorize initialize s"  Press any key " bottom-msg key drop draw-bottom	\ wait user is ready 
 		begin
-		    play-game s"  Again? " bottom-msg key to-upper [char] Y =
-		while  initialize  repeat
-		0 23 at-xy cr ;
+		    play-game true curseur s"  Again? " bottom-msg key to-upper [CHAR] Y = while \ any other key ends 
+		   	initialize  
+		repeat
+		0 23 at-xy ;
  
 only forth also definitions
+\ cursor management redefined for that dictionary 
+: curseur ( true|anything-else -- display cursor | or not )
+	0 = if .\" \e[?25l" else .\" \e[?25h" then
+;
 
-: 7CR ( -- ) 7 0 DO CR LOOP ; \ just for better exit display on terminal
-
-\ run 
-tt 7CR .\" \e[?25h" 0 (bye)	\ restore cursor then exit returning 0 status to system
-s" tput cnorm" system \ restore system cursor
-0 (bye)
+tt page true dup curseur (bye) \ run & exit zero
