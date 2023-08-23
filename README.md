@@ -10,8 +10,10 @@ see [15squares game](https://gitlab.com/goblinrieur/15square)
 
 see [snake game](https://gitlab.com/goblinrieur/forthsnake)
 
-see [tetris](https://gitlab.com/goblinrieur/gforthtetris)
+see [tetris game](https://gitlab.com/goblinrieur/gforthtetris)
 
 see [RA-conv](https://gitlab.com/goblinrieur/r-a_conv)
+
+see [week dday from date](https://gitlab.com/goblinrieur/checkdays)
 
 & many more 
