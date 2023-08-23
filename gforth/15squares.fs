@@ -41,9 +41,9 @@ variable movecount
 	33 colorize 5 2 at-xy ." moves count : " movecount @ . cr 
 	0 colorize movecount+
 ;
-: 3dup   2 pick 2 pick 2 pick 
+: 3dup   2 pick 2 pick 2 pick ( s -- s s s )
 ;
-: 4dup   2over 2over 
+: 4dup   2over 2over ( s -- s s s s )
 ;
 : shift   
 	dup 
@@ -56,7 +56,6 @@ variable movecount
 : row   
 	2 rshift 
 ;
-   
 : col   
 	3 and 
 ;
@@ -112,8 +111,7 @@ create step -4 , -1 , 1 , 4 ,
 	?dup-0=-if 
 		.hole 
 	else 
-		dup 
-		10 < if 
+		dup 10 < if 
 			space 
 		then 
 		36 colorize .  0 colorize
@@ -128,9 +126,10 @@ create step -4 , -1 , 1 , 4 ,
 		loop 
 	loop drop 
 ;
-: .help   
-	cr cr 32 colorize 3 spaces ."  i" cr
-	3 spaces ." jkl move," cr 3 spaces ." q quit" cr 0 colorize
+: .help  ( just displays a help below game user interface )
+	.\" \e[1m" cr cr 32 colorize 3 spaces ."  i" cr
+	3 spaces ." jkl move, (arrows keys)" cr 3 spaces cr 
+	3 spaces ." q quit" cr .\" \e[0m" 
 ;
 \ Pseudo-random number generator:
 create (rnd)   utime drop ,
@@ -154,22 +153,39 @@ create (rnd)   utime drop ,
 	loop 
 ;
 : win ( -- won )
-	cr 41 colorize ." you won!" 0 colorize exitprog \ bye with 0
+	cr 41 colorize ." you won!" cr 0 colorize exitprog \ bye with 0
+;
+: to-upper	\ char --- char ; convert any alphabetic to upper case
+    dup [char] a [char] z 1+ within if
+			bl -
+    then 
 ;
 : gameloop ( s -- )
-	page cr cr dup .movecount .board .help
-	key case	\ check keys
-		[char] q of exitprog endof
-		[char] i of down ?move endof
-		[char] j of right ?move endof
-		[char] k of up ?move endof
-		[char] l of left ?move endof
-		[char] Q of exitprog endof
-		[char] I of down ?move endof
-		[char] J of right ?move endof
-		[char] K of up ?move endof
-		[char] L of left ?move endof
-	endcase 
+	\ refresh user interface
+	page cr cr dup .movecount .board .help	
+	\ ctrl+c is a boss-key ( emergency exit ) if run from shell script
+	['] ekey catch dup -28 = if drop exit then throw ekey>char if to-upper ( printable char )
+		case
+			73 OF down ?move endof
+			74 OF right ?move endof
+			75 OF up ?move endof
+			76 OF left ?move endof
+			81 OF exitprog ENDOF
+			false swap
+		endcase
+	else	\ its not a character key
+		ekey>fkey if ( arrow key-id ) \ to allow also that mode
+			case
+				k-left	OF	right ?move endof
+				k-right	OF	left ?move endof
+				k-up	OF	down ?move endof
+				k-down	OF	up ?move endof
+				false swap
+			endcase
+		else 
+			drop \ ignore key
+		then
+	then
 ;
  
 : main ( -- )
@@ -177,13 +193,13 @@ create (rnd)   utime drop ,
 	dup solution <> while  \ runs until either user quits either current board = solution constant
 		gameloop 
 	repeat 
-	win 
+	win \ won condition
 ;
 \ main game : 
 : initialyze ( -- )
 		checkversion			\ guess it is useless but ... just in case...
 		.\" \e[?25l"			\ hide cursor
-		solution 1000 shuffle	\ random seed for board 
+		solution 1000 shuffle	\ random shuffle for board 
 		main					\ plays until solution or user quit 
 ;
 initialyze

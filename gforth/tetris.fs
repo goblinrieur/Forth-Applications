@@ -362,7 +362,7 @@ create brick-val 1 c, 2 c, 3 c, 3 c, 4 c, 5 c, 5 c,
  
 : to-upper	\ char --- char ; convert to upper case
     dup [char] a [char] z 1+ within if
-	bl -
+			bl -
     then ;
 
 : interaction	\ --- flag
@@ -377,16 +377,16 @@ create brick-val 1 c, 2 c, 3 c, 3 c, 4 c, 5 c, 5 c,
            quit-key		of  false exit  endof
        endcase  
 	else 
-			ekey>fkey if ( arrow key-id ) \ to allows also that mode
-				case
-					k-left	of	0 -1 move-brick drop	endof
-					k-right	of	0  1 move-brick drop	endof
-					k-up	of	0 rotate-brick drop		endof
-					k-down	of	drop-brick				endof
-				endcase 
-			else
-				drop \ ignore other key
-			then
+		ekey>fkey if ( arrow key-id ) \ to allows also that mode
+			case
+				k-left	of	0 -1 move-brick drop	endof
+				k-right	of	0  1 move-brick drop	endof
+				k-up	of	0 rotate-brick drop		endof
+				k-down	of	drop-brick				endof
+			endcase 
+		else
+			drop \ ignore other key
+		then
 	then true
 ;
  
