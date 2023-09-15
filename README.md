@@ -20,3 +20,5 @@ see [tetris game](https://gitlab.com/goblinrieur/gforthtetris)
 see [week dday from date](https://gitlab.com/goblinrieur/checkdays)                                                                                                                                                                           
 
 & many many more 
+
+My real projoct manager is [https://gitlab.com/goblinrieur](https://gitlab.com/goblinrieur) here (github) is just an historic account no more/no less 
